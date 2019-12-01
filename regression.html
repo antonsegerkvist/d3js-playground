@@ -1,0 +1,129 @@
+<!DOCTYPE html5>
+<html lang = "en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src = "https://d3js.org/d3.v4.min.js"></script>
+    <style>
+      html, body, div, span, applet, object, iframe,
+      h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+      a, abbr, acronym, address, big, cite, code,
+      del, dfn, em, img, ins, kbd, q, s, samp,
+      small, strike, strong, sub, sup, tt, var,
+      b, u, i, center,
+      dl, dt, dd, ol, ul, li,
+      fieldset, form, label, legend,
+      table, caption, tbody, tfoot, thead, tr, th, td,
+      article, aside, canvas, details, embed, 
+      figure, figcaption, footer, header, hgroup, 
+      menu, nav, output, ruby, section, summary,
+      time, mark, audio, video {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+      }
+      article, aside, details, figcaption, figure, 
+      footer, header, hgroup, menu, nav, section {
+        display: block;
+      }
+      body {
+        line-height: 1;
+      }
+      ol, ul {
+        list-style: none;
+      }
+      blockquote, q {
+        quotes: none;
+      }
+      blockquote:before, blockquote:after,
+      q:before, q:after {
+        content: '';
+        content: none;
+      }
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+      html, body {
+        height: 100%;
+        position: relative;
+        width: 100%;
+      }
+      #graph {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <svg id="graph">
+    </svg>
+
+    <script>
+      //
+      // Define the dot product.
+      //
+      d3.dot = function (vector1, vector2) {
+        let maxLength = Math.max(vector1.length, vector2.length);
+        let ret = 0;
+        for (let i = 0; i < maxLength; ++i)
+        {
+          ret += vector1[i] * vector2[i];
+        }
+        return ret;
+      };
+
+      let width = 100;
+      let height = 100;
+      let points = 100;
+
+      let data = [];
+      for (let i = 0; i < points; ++i)
+      {
+        data.push({
+          x: Math.random() * width,
+          y: Math.random() * height 
+        });
+      }
+
+      //
+      // Perform regression coefficients.
+      // y = k * m + m
+      //
+
+      let vy = data.map(d => d.y);
+      let vx = data.map(d => d.x);
+
+      let k = (d3.dot(vx,vy) * vy.length - d3.sum(vy) * d3.sum(vx)) / (d3.dot(vx, vx) * vy.length - Math.pow(d3.sum(vx), 2));
+      let m = (d3.sum(vy) * d3.dot(vx, vx) - d3.sum(vx) * d3.dot(vx, vy)) / (vy.length * d3.dot(vx, vx) - Math.pow(d3.sum(vx), 2));
+
+      console.log(`k = ${k}`);
+      console.log(`m = ${m}`);
+
+      let graph = d3.select('#graph')
+        .attr('viewBox', `0 0 ${width} ${height}`);
+
+      graph
+        .append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', height - m)
+        .attr('y2', height - k * width - m)
+        .attr('stroke', 'blue')
+        .attr('stroke-width', '0.2');
+
+      graph
+        .selectAll('circle')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('cx', d => d.x)
+        .attr('cy', d => height - d.y)
+        .attr('r', '0.25');
+    </script>
+  </body>
+</html>
