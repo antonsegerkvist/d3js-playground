@@ -1,0 +1,146 @@
+<!DOCTYPE html5>
+<html lang = "en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src = "https://d3js.org/d3.v4.min.js"></script>
+    <style>
+      html, body, div, span, applet, object, iframe,
+      h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+      a, abbr, acronym, address, big, cite, code,
+      del, dfn, em, img, ins, kbd, q, s, samp,
+      small, strike, strong, sub, sup, tt, var,
+      b, u, i, center,
+      dl, dt, dd, ol, ul, li,
+      fieldset, form, label, legend,
+      table, caption, tbody, tfoot, thead, tr, th, td,
+      article, aside, canvas, details, embed, 
+      figure, figcaption, footer, header, hgroup, 
+      menu, nav, output, ruby, section, summary,
+      time, mark, audio, video {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+      }
+      article, aside, details, figcaption, figure, 
+      footer, header, hgroup, menu, nav, section {
+        display: block;
+      }
+      body {
+        line-height: 1;
+      }
+      ol, ul {
+        list-style: none;
+      }
+      blockquote, q {
+        quotes: none;
+      }
+      blockquote:before, blockquote:after,
+      q:before, q:after {
+        content: '';
+        content: none;
+      }
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
+      html, body {
+        height: 100%;
+        position: relative;
+        width: 100%;
+      }
+      #graph {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <svg id="graph">
+    </svg>
+
+    <script>
+      const height = 500;
+      const width = 500;
+      let data = [
+        { name: 'Bon Jovi', value: 34.5 },
+        { name: 'Britney Spears', value: 34.5 },
+        { name: 'Queen', value: 34.5 },
+        { name: 'Def Leppard', value: 35.5 },
+        { name: 'Bob Dylan', value: 36.0 },
+        { name: 'Tupac Shakur', value: 36.5 },
+        { name: 'Backstreet Boys', value: 37.0 },
+        { name: 'Tim McGraw', value: 37.5 },
+        { name: 'Rod Stewart', value: 38.0 },
+        { name: 'Foreigner', value: 38.0 },
+        { name: 'Simon & Garfunkel', value: 38.5 },
+        { name: 'Chicago', value: 38.5 },
+        { name: 'Eric Clapton', value: 40.0 },
+        { name: 'Reba McEntire', value: 41.0 },
+        { name: 'Taylor Swift', value: 43.0 },
+        { name: 'Santana', value: 43.5 },
+        { name: 'Alan Jackson', value: 43.5 },
+        { name: 'Guns N’ Roses', value: 44.5 },
+        { name: 'Bob Seger & The Silver Bullet Band', value: 44.5 },
+        { name: 'Eminem', value: 46.0 },
+        { name: 'Alabama', value: 46.5 },
+        { name: 'Kenny Rogers', value: 47.5 },
+        { name: 'Shania Twain', value: 48.0 },
+        { name: 'Kenny G', value: 48.0 },
+      ];
+
+      let graph = d3
+        .select('#graph')
+        .attr('viewBox', `0 0 ${width} ${height}`);
+
+      let node = graph.selectAll('circle')
+        .data(data)
+        .enter()
+        .append('g')
+        .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));;
+
+      let circles = node.append('circle')
+        .attr('r', d => (d.value / 2))
+        .attr('fill', 'steelblue')
+
+      let simulation = d3.forceSimulation()
+        .force('many', d3.forceManyBody().strength(function () { return 30; }))
+        .force('center', d3.forceCenter(width/2,height/2))
+        .force('collide', d3.forceCollide().radius(d => (d.value / 2)));
+
+      simulation
+        .nodes(data)
+        .on('tick', ticked);
+
+      function ticked () {
+        node
+          .attr('transform', d => {
+            return `translate(${d.x},${d.y})`;
+          });
+      }
+      function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+
+      function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      }
+
+      function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+    </script>
+  </body>
+</html>
